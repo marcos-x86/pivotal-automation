@@ -1,4 +1,4 @@
-package com.automation;
+package com.automation.testng.api;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -12,12 +12,17 @@ import java.util.Date;
 
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchema;
 
-public class UpdatePivotalProject {
+public class CreatePivotalProject {
 
     String id;
 
     @BeforeMethod
     public void setupEnvironment() {
+
+    }
+
+    @Test
+    public void createProjectTest() {
         String baseURL = "https://www.pivotaltracker.com/services/v5/projects";
         String token = "";
         String projectName = "Executioner " + new Date().getTime();
@@ -35,25 +40,6 @@ public class UpdatePivotalProject {
         Assert.assertEquals(actualStatusCode, expectedStatusCode);
 
         id = response.jsonPath().getString("id");
-    }
-
-    @Test
-    public void updateProjectTest() {
-        String baseURL = "https://www.pivotaltracker.com/services/v5/projects/" + id;
-        String token = "";
-        String projectName = "Updated Executioner " + new Date().getTime();
-        String requestBody = "{\"name\": \"" + projectName + "\"}";
-
-        Response response = RestAssured.given()
-                .header("X-TrackerToken", token)
-                .header("Content-Type", "application/json")
-                .when()
-                .body(requestBody)
-                .put(baseURL);
-
-        int expectedStatusCode = 200;
-        int actualStatusCode = response.statusCode();
-        Assert.assertEquals(actualStatusCode, expectedStatusCode);
 
         File schemaFile = new File("src/test/resources/schemas/createProjectResponseSchema.txt");
         response.then().assertThat().body(matchesJsonSchema(schemaFile));

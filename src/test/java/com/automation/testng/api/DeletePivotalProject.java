@@ -1,28 +1,19 @@
-package com.automation;
+package com.automation.testng.api;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.util.Date;
 
-import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchema;
-
-public class CreatePivotalProject {
+public class DeletePivotalProject {
 
     String id;
 
     @BeforeMethod
     public void setupEnvironment() {
-
-    }
-
-    @Test
-    public void createProjectTest() {
         String baseURL = "https://www.pivotaltracker.com/services/v5/projects";
         String token = "";
         String projectName = "Executioner " + new Date().getTime();
@@ -40,17 +31,10 @@ public class CreatePivotalProject {
         Assert.assertEquals(actualStatusCode, expectedStatusCode);
 
         id = response.jsonPath().getString("id");
-
-        File schemaFile = new File("src/test/resources/schemas/createProjectResponseSchema.txt");
-        response.then().assertThat().body(matchesJsonSchema(schemaFile));
-
-        String expectedProjectName = projectName;
-        String actualProjectName = response.jsonPath().getString("name");
-        Assert.assertEquals(actualProjectName, expectedProjectName);
     }
 
-    @AfterMethod
-    public void cleanEnvironment() {
+    @Test
+    public void deleteProjectTest() {
         String baseURL = "https://www.pivotaltracker.com/services/v5/projects/" + id;
         String token = "";
 
@@ -63,5 +47,8 @@ public class CreatePivotalProject {
         int expectedStatusCode = 204;
         int actualStatusCode = response.statusCode();
         Assert.assertEquals(actualStatusCode, expectedStatusCode);
+
+        String actualBody = response.body().asString();
+        Assert.assertTrue(actualBody.isEmpty());
     }
 }
